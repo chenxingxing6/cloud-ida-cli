@@ -9,10 +9,8 @@ import org.apache.shiro.web.servlet.AbstractShiroFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * 随带写Bug的程序猿
@@ -42,10 +40,13 @@ public class ShiroService {
         filterRuleMap.put("/getUser", "jwt");
 
         List<PermissionRole> roles = userDao.getAllRolesByPermission();
-        for (PermissionRole role : roles){
-            filterRuleMap.put(role.getPermissionUrl(),role.getRoleName());
-        }
-
+        Map<String, List<PermissionRole>> rolesMap = roles.stream().collect(Collectors.groupingBy(PermissionRole::getPermissionUrl));
+        Set<String> permissionUrl = rolesMap.keySet();
+       /* for (String s : permissionUrl) {
+            List<PermissionRole> permissionRoles = rolesMap.get(s);
+            String roleName = permissionRoles.stream().map(PermissionRole::getRoleName).collect(Collectors.joining(","));
+            filterRuleMap.put(s, roleName);
+        }*/
         return filterRuleMap;
     }
 
